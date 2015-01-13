@@ -25,6 +25,8 @@ io.on('connection', function(socket) {
     });
 
     socket.on('position', function(data) {
+        if (!entities[socket.id]) return;
+
         entities[socket.id].position = data.position;
         io.emit('position', { id: socket.id, position: data.position });
     });
