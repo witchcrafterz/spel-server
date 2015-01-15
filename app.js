@@ -10,6 +10,7 @@ var _ = require('lodash');
 app.listen(3001);
 
 var entities = {};
+var actionQueue = {};
 
 io.on('connection', function(socket) {
     console.log('New client connected', socket.id);
@@ -35,6 +36,16 @@ io.on('connection', function(socket) {
         io.emit('position', { id: socket.id, position: data.position });
     });
 
+    socket.on('action', function(data) {
+        if (!entities[socket.id]) return;
+
+        console.log('Received action', socket.id);
+
+        if (!actionQueue[socket.id]) actionQueue[socket.id] = [];
+
+        actionQueue[socket.id].push(data);
+    });
+
     socket.on('disconnect', function() {
         console.log('Player disconnected', socket.id);
 
@@ -42,3 +53,12 @@ io.on('connection', function(socket) {
         delete entities[socket.id];
     });
 });
+
+function sendAction() {
+    io.emit('action', actionQueue);
+    actionQueue = {};
+
+    setTimeout(sendAction, 50);
+}
+
+setTimeout(sendAction, 50);
