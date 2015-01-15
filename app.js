@@ -12,6 +12,8 @@ app.listen(3001);
 var entities = {};
 
 io.on('connection', function(socket) {
+    console.log('New client connected', socket.id);
+
     socket.emit('id', { id: socket.id });
 
     _.forEach(entities, function(entity) {
@@ -19,6 +21,8 @@ io.on('connection', function(socket) {
     });
 
     socket.on('new', function(data) {
+        console.log('New player created', socket.id);
+
         data.id = socket.id;
         entities[socket.id] = data;
         io.emit('new', data);
@@ -32,6 +36,8 @@ io.on('connection', function(socket) {
     });
 
     socket.on('disconnect', function() {
+        console.log('Player disconnected', socket.id);
+
         io.emit('delete', { id: socket.id });
         delete entities[socket.id];
     });
